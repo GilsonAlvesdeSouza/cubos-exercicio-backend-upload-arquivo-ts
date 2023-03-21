@@ -4,9 +4,12 @@ import { UserController } from './controllers/UserController';
 import { UserRepository } from './repositories/UserRepository';
 import AuthUserController from './controllers/AuthUserController';
 import { AuthUserRepository } from './repositories/AuthUserRepository';
+import ProductController from './controllers/ProductController';
+import ProductRepository from './repositories/ProductRepository';
 
 const userController = new UserController(new UserRepository());
 const authUserController = new AuthUserController(new AuthUserRepository());
+const product = new ProductController(new ProductRepository());
 
 const router = Router();
 
@@ -16,6 +19,6 @@ router.post('/login', authUserController.auth);
 router.use(isAuthenticated);
 router.get('/perfil', userController.findById);
 router.put('/perfil', userController.update);
-router;
+router.post('/produtos', product.create);
 
 export default router;
