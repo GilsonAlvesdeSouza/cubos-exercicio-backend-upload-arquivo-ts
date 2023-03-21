@@ -1,7 +1,7 @@
 export default interface IBaseRepository<T> {
 	findAll(): Promise<T[]>;
-	findById(id: string): Promise<T | undefined>;
-	create(data: T): Promise<T | Partial<T>>;
-	update(id: string, data: T): Promise<T>;
-	delete(id: string): Promise<void>;
+	findById(id: number): Promise<T | undefined>;
+	create(data: T): Promise<T>;
+	update(id: number, data: T): Promise<T>;
+	delete(id: number): Promise<void>;
 }
