@@ -5,9 +5,24 @@ import IBaseRepository from '../repositories/IBaseRepository';
 
 export default class ProductController {
 	private readonly productRepository: IBaseRepository<IProducts>;
+	
 	constructor(productRepository: IBaseRepository<IProducts>) {
 		this.productRepository = productRepository;
+		this.findAll = this.findAll.bind(this);
 		this.create = this.create.bind(this);
+	}
+
+	async findAll(req: Request, res: Response): Promise<Response> {
+		const category = req.query.category as string;
+		const user_id = Number(req.user_id);
+
+		if (!user_id) {
+			throw new BadRequestError('O id do usuário é obrigatório');
+		}
+
+		const products = await this.productRepository.findAll(category, user_id);
+
+		return res.status(200).json(products);
 	}
 
 	async create(req: Request, res: Response): Promise<Response> {

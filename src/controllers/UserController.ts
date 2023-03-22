@@ -5,7 +5,7 @@ import IUser from '../Models/IUser';
 import IBaseRepository from '../repositories/IBaseRepository';
 
 export class UserController {
-	readonly userRepository: IBaseRepository<IUser>;
+	private readonly userRepository: IBaseRepository<IUser>;
 
 	constructor(userRepository: IBaseRepository<IUser>) {
 		this.userRepository = userRepository;

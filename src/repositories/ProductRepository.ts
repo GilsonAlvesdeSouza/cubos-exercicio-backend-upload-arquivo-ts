@@ -3,8 +3,17 @@ import IProducts from '../Models/IProducts';
 import IBaseRepository from './IBaseRepository';
 
 export default class ProductRepository implements IBaseRepository<IProducts> {
-	findAll(): Promise<IProducts[]> {
-		throw new Error('Method not implemented.');
+	async findAll(category: string, user_id: number): Promise<IProducts[]> {
+		const products = await knexInstancePG('products')
+			.where({ user_id })
+			.where((query) => {
+				if (category) {
+					return query.where('category', 'ilike', `%${category}%`);
+				}
+			});
+		console.log(category);
+
+		return products;
 	}
 
 	findById(id: number): Promise<any> {
