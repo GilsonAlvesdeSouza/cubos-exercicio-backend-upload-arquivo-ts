@@ -64,13 +64,16 @@ export class UserController {
 			password = await bcrypt.hash(password, 10);
 		}
 
-		const user = await this.userRepository.update(user_id, {
-			id: user_id,
-			name,
-			email,
-			password,
-			store_name
-		});
+		const user = await this.userRepository.update(
+			{
+				id: user_id,
+				name,
+				email,
+				password,
+				store_name
+			},
+			user_id
+		);
 
 		if (!user) {
 			throw new NotFoundError('Não foi possível atualizar o usuário');

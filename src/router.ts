@@ -23,5 +23,7 @@ router.put('/perfil', userController.update);
 router.get('/produtos', product.findAll);
 router.get('/produtos/:id', product.findById);
 router.post('/produtos', product.create);
+router.put('/produtos/:id', product.update);
+router.delete('/produtos/:id', product.delete);
 
 export default router;

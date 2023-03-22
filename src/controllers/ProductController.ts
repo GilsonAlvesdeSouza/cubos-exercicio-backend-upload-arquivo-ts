@@ -12,6 +12,8 @@ export default class ProductController {
 		this.findAll = this.findAll.bind(this);
 		this.findById = this.findById.bind(this);
 		this.create = this.create.bind(this);
+		this.update = this.update.bind(this);
+		this.delete = this.delete.bind(this);
 	}
 
 	async findAll(req: Request, res: Response): Promise<Response> {
@@ -64,5 +66,55 @@ export default class ProductController {
 		}
 
 		return res.status(201).json(product);
+	}
+
+	async update(req: Request, res: Response): Promise<Response> {
+		const id = Number(req.params.id);
+		const { name, stock, price, category, description, image }: IProducts =
+			req.body;
+		const user_id = Number(req.user_id);
+
+		if (!name && !stock && !price && !category && !description && !image) {
+			throw new BadRequestError(
+				'Informe ao menos um campo para atualização do produto'
+			);
+		}
+
+		const product = await this.productRepository.update(
+			{
+				user_id,
+				name,
+				stock,
+				price,
+				category,
+				description,
+				image
+			},
+			id,
+			user_id
+		);
+
+		if (!product) {
+			throw new BadRequestError('O produto não foi atualizado');
+		}
+
+		return res.status(200).json('produto foi atualizado com sucesso.');
+	}
+
+	async delete(req: Request, res: Response): Promise<Response> {
+		const id = Number(req.params.id);
+		const user_id = Number(req.user_id);
+
+		validateRequest({ user_id, id });
+
+		const product = await this.productRepository.findById(id, user_id);
+
+		if (!product) {
+			throw new NotFoundError('Produto não encontrado');
+		}
+
+		await this.productRepository.delete(id, user_id);
+
+		return res.status(200).json('Produto deletado com sucesso');
 	}
 }

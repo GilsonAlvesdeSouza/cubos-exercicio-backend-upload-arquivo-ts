@@ -1,4 +1,5 @@
 import knexInstancePG from '../connection/pg_connection';
+import { NotFoundError } from '../errors';
 import IProducts from '../Models/IProducts';
 import IBaseRepository from './IBaseRepository';
 
@@ -27,7 +28,7 @@ export default class ProductRepository implements IBaseRepository<IProducts> {
 		return product;
 	}
 
-	async create(data: IProducts): Promise<IProducts> {
+	async create(data: IProducts): Promise<IProducts | undefined> {
 		const product = (await knexInstancePG('products')
 			.insert(data)
 			.returning('*')
@@ -35,11 +36,29 @@ export default class ProductRepository implements IBaseRepository<IProducts> {
 		return product;
 	}
 
-	update(id: number, data: IProducts): Promise<IProducts> {
-		throw new Error('Method not implemented.');
+	async update(data: IProducts, id: number, user_id: number): Promise<number> {
+		const productFound = await knexInstancePG('products')
+			.where({
+				id,
+				user_id
+			})
+			.first();
+
+		if (!productFound) {
+			throw new NotFoundError('Produto não encontrado');
+		}
+
+		const product = await knexInstancePG('products').where({ id }).update(data);
+
+		return product;
 	}
 
-	delete(id: number): Promise<void> {
-		throw new Error('Method not implemented.');
+	async delete(id: number, user_id: number): Promise<void> {
+		const excludedProduct = await knexInstancePG('products')
+			.where({
+				id,
+				user_id
+			})
+			.del();
 	}
 }

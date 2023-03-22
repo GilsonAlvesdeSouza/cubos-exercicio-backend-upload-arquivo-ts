@@ -31,7 +31,7 @@ export class AuthUserRepository implements IBaseRepository<IAuth> {
 	create(data: IAuth): Promise<IAuth> {
 		throw new Error('Method not implemented.');
 	}
-	update(id: number, data: IAuth): Promise<IAuth> {
+	update(data: IAuth, id: number): Promise<IAuth> {
 		throw new Error('Method not implemented.');
 	}
 	delete(id: number): Promise<void> {

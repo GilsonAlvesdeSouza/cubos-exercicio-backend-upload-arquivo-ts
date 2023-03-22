@@ -33,14 +33,14 @@ export class UserRepository implements IBaseRepository<IUser> {
 		return user;
 	}
 
-	async update(id: number, data: IUser): Promise<IUser> {
+	async update(data: IUser, id: number): Promise<IUser | undefined> {
 		const userExists = await knexInstancePG('users')
 			.where({ id })
 			.returning('email')
 			.first();
 
 		if (!userExists) {
-			throw new NotFoundError('Usuário não encontrado');
+			return undefined
 		}
 
 		if (userExists.email !== data.email) {
