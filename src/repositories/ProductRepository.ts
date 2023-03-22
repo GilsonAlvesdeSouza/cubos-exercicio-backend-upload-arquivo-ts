@@ -16,8 +16,15 @@ export default class ProductRepository implements IBaseRepository<IProducts> {
 		return products;
 	}
 
-	findById(id: number): Promise<any> {
-		throw new Error('Method not implemented.');
+	async findById(id: number, user_id: number): Promise<any> {
+		const product = await knexInstancePG('products')
+			.where({
+				id,
+				user_id
+			})
+			.first();
+
+		return product;
 	}
 
 	async create(data: IProducts): Promise<IProducts> {

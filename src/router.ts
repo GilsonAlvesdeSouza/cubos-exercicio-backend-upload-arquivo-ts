@@ -19,7 +19,9 @@ router.post('/login', authUserController.auth);
 router.use(isAuthenticated);
 router.get('/perfil', userController.findById);
 router.put('/perfil', userController.update);
+
 router.get('/produtos', product.findAll);
+router.get('/produtos/:id', product.findById);
 router.post('/produtos', product.create);
 
 export default router;

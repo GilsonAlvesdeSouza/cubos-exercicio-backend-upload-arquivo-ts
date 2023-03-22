@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { NotFoundError } from '../errors';
 import IUser from '../Models/IUser';
 import IBaseRepository from '../repositories/IBaseRepository';
+import { validateRequest } from '../utils/validateRequeste';
 
 export class UserController {
 	private readonly userRepository: IBaseRepository<IUser>;
@@ -17,7 +18,7 @@ export class UserController {
 	async create(req: Request, res: Response) {
 		const { name, email, password, store_name }: IUser = req.body;
 
-		validateRequest(name, email, password, store_name);
+		validateRequest({ name, email, password, store_name });
 
 		const encryptedPassword = await bcrypt.hash(password, 10);
 
@@ -76,28 +77,5 @@ export class UserController {
 		}
 
 		return res.status(200).json(user);
-	}
-}
-
-function validateRequest(
-	name: string,
-	email: string,
-	password: string,
-	store_name: string
-) {
-	if (!name) {
-		throw new NotFoundError('O campo nome é obrigatório');
-	}
-
-	if (!email) {
-		throw new NotFoundError('O campo email é obrigatório');
-	}
-
-	if (!password) {
-		throw new NotFoundError('O campo senha é obrigatório');
-	}
-
-	if (!store_name) {
-		throw new NotFoundError('O campo nome_loja é obrigatório');
 	}
 }
