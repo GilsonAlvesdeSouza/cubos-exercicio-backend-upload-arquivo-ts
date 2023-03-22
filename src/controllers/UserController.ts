@@ -17,21 +17,7 @@ export class UserController {
 	async create(req: Request, res: Response) {
 		const { name, email, password, store_name }: IUser = req.body;
 
-		if (!name) {
-			throw new NotFoundError('O campo nome é obrigatório');
-		}
-
-		if (!email) {
-			throw new NotFoundError('O campo email é obrigatório');
-		}
-
-		if (!password) {
-			throw new NotFoundError('O campo senha é obrigatório');
-		}
-
-		if (!store_name) {
-			throw new NotFoundError('O campo nome_loja é obrigatório');
-		}
+		validateRequest(name, email, password, store_name);
 
 		const encryptedPassword = await bcrypt.hash(password, 10);
 
@@ -90,5 +76,28 @@ export class UserController {
 		}
 
 		return res.status(200).json(user);
+	}
+}
+
+function validateRequest(
+	name: string,
+	email: string,
+	password: string,
+	store_name: string
+) {
+	if (!name) {
+		throw new NotFoundError('O campo nome é obrigatório');
+	}
+
+	if (!email) {
+		throw new NotFoundError('O campo email é obrigatório');
+	}
+
+	if (!password) {
+		throw new NotFoundError('O campo senha é obrigatório');
+	}
+
+	if (!store_name) {
+		throw new NotFoundError('O campo nome_loja é obrigatório');
 	}
 }
