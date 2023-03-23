@@ -27,4 +27,11 @@ router.post('/produtos', singleUpload('image'), product.create);
 router.put('/produtos/:id', product.update);
 router.delete('/produtos/:id', product.delete);
 
+router.put(
+	'/produtos/upload-image/:id',
+	singleUpload('image'),
+	product.uploadImageProduct
+);
+router.delete('/produtos/delete-image/:id', product.deleteImageProduct);
+
 export default router;

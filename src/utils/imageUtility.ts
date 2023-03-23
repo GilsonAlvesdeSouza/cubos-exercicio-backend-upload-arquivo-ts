@@ -10,3 +10,12 @@ export const s3 = new aws.S3({
 		secretAccessKey: process.env.APP_KEY as string
 	}
 });
+
+export const getPath = (url: string) => {
+	const path = url.split('/');
+	const file = path[path.length - 1];
+	const folder = path[path.length - 2];
+	const bucket = path[path.length - 3];
+
+	return `${bucket}/${folder}/${file}`;
+};
