@@ -34,13 +34,10 @@ export class UserRepository implements IBaseRepository<IUser> {
 	}
 
 	async update(data: IUser, id: number): Promise<IUser | undefined> {
-		const userExists = await knexInstancePG('users')
-			.where({ id })
-			.returning('email')
-			.first();
+		const userExists = await this.findById(id);
 
 		if (!userExists) {
-			return undefined
+			return undefined;
 		}
 
 		if (userExists.email !== data.email) {
@@ -61,6 +58,6 @@ export class UserRepository implements IBaseRepository<IUser> {
 	}
 
 	async delete(id: number): Promise<void> {
-		await knexInstancePG('users').where('id', id).del();
+		throw new Error('Method not implemented.');
 	}
 }

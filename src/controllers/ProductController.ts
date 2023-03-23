@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { s3 } from '../utils/sendImage';
 import { BadRequestError, NotFoundError } from '../errors';
 import IProducts from '../Models/IProducts';
 import IBaseRepository from '../repositories/IBaseRepository';
@@ -18,7 +19,7 @@ export default class ProductController {
 
 	async findAll(req: Request, res: Response): Promise<Response> {
 		const category = req.query.category as string;
-		const user_id = Number(req.user_id);
+		const user_id = Number(req.user.id);
 
 		if (!user_id) {
 			throw new BadRequestError('O id do usuário é obrigatório');
@@ -31,7 +32,7 @@ export default class ProductController {
 
 	async findById(req: Request, res: Response): Promise<Response> {
 		const id = Number(req.params.id);
-		const user_id = Number(req.user_id);
+		const user_id = Number(req.user.id);
 
 		validateRequest({ user_id, id });
 
@@ -45,11 +46,13 @@ export default class ProductController {
 	}
 
 	async create(req: Request, res: Response): Promise<Response> {
-		const { name, stock, price, category, description, image }: IProducts =
-			req.body;
-		const user_id = Number(req.user_id);
+		const { name, stock, price, category, description }: IProducts = req.body;
+		const user_id = Number(req.user.id);
 
-		validateRequest({ user_id, name, stock, price, category });
+		console.log(req.user);
+		const image = req.file;
+
+		validateRequest({ user_id, name, stock, price });
 
 		const product = await this.productRepository.create({
 			user_id,
@@ -57,12 +60,33 @@ export default class ProductController {
 			stock,
 			price,
 			category,
-			description,
-			image
+			description
 		});
 
 		if (!product) {
 			throw new BadRequestError('O produto não foi cadastrado');
+		}
+
+		if (image) {
+			const file = await s3
+				.upload({
+					Bucket: process.env.BUCKET_NAME as string,
+					Key: `produto/${product.id}/${image.originalname}`,
+					Body: image.buffer,
+					ContentType: image.mimetype
+				})
+				.promise();
+
+			product.image = file.Location;
+			const productUpdateImage = await this.productRepository.update(
+				product,
+				product.id,
+				user_id
+			);
+
+			if (!productUpdateImage) {
+				throw new Error('Não foi possível atualizar a imagem do produto');
+			}
 		}
 
 		return res.status(201).json(product);
@@ -72,7 +96,7 @@ export default class ProductController {
 		const id = Number(req.params.id);
 		const { name, stock, price, category, description, image }: IProducts =
 			req.body;
-		const user_id = Number(req.user_id);
+		const user_id = Number(req.user.id);
 
 		if (!name && !stock && !price && !category && !description && !image) {
 			throw new BadRequestError(
@@ -103,15 +127,9 @@ export default class ProductController {
 
 	async delete(req: Request, res: Response): Promise<Response> {
 		const id = Number(req.params.id);
-		const user_id = Number(req.user_id);
+		const user_id = Number(req.user.id);
 
 		validateRequest({ user_id, id });
-
-		const product = await this.productRepository.findById(id, user_id);
-
-		if (!product) {
-			throw new NotFoundError('Produto não encontrado');
-		}
 
 		await this.productRepository.delete(id, user_id);
 

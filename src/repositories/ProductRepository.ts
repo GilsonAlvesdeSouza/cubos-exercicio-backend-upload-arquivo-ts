@@ -37,12 +37,7 @@ export default class ProductRepository implements IBaseRepository<IProducts> {
 	}
 
 	async update(data: IProducts, id: number, user_id: number): Promise<number> {
-		const productFound = await knexInstancePG('products')
-			.where({
-				id,
-				user_id
-			})
-			.first();
+		const productFound = await this.findById(id, user_id);
 
 		if (!productFound) {
 			throw new NotFoundError('Produto não encontrado');
@@ -54,7 +49,13 @@ export default class ProductRepository implements IBaseRepository<IProducts> {
 	}
 
 	async delete(id: number, user_id: number): Promise<void> {
-		const excludedProduct = await knexInstancePG('products')
+		const productFound = await this.findById(id, user_id);
+
+		console.log(productFound);
+		if (!productFound) {
+			throw new NotFoundError('Produto não encontrado');
+		}
+		await knexInstancePG('products')
 			.where({
 				id,
 				user_id

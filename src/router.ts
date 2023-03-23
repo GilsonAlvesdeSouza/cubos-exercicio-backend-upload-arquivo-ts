@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { singleUpload } from './config/multer';
 import isAuthenticated from './middlewares/isAuthenticated';
 import { UserController } from './controllers/UserController';
 import { UserRepository } from './repositories/UserRepository';
@@ -22,7 +23,7 @@ router.put('/perfil', userController.update);
 
 router.get('/produtos', product.findAll);
 router.get('/produtos/:id', product.findById);
-router.post('/produtos', product.create);
+router.post('/produtos', singleUpload('image'), product.create);
 router.put('/produtos/:id', product.update);
 router.delete('/produtos/:id', product.delete);
 

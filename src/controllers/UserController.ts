@@ -11,7 +11,6 @@ export class UserController {
 	constructor(userRepository: IBaseRepository<IUser>) {
 		this.userRepository = userRepository;
 		this.create = this.create.bind(this);
-		this.findById = this.findById.bind(this);
 		this.update = this.update.bind(this);
 	}
 
@@ -37,21 +36,12 @@ export class UserController {
 	}
 
 	async findById(req: Request, res: Response) {
-		const user_id = Number(req.user_id);
-
-		if (!user_id) {
-			throw new NotFoundError('O id do usuário é obrigatório');
-		}
-
-		const user = await this.userRepository.findById(user_id);
-		if (!user) {
-			throw new NotFoundError('Usuário não encontrado');
-		}
+		const user = req.user;
 		return res.status(200).json(user);
 	}
 
 	async update(req: Request, res: Response) {
-		const user_id = Number(req.user_id);
+		const user_id = Number(req.user.id);
 		let { name, email, password, store_name }: IUser = req.body;
 
 		if (!name && !email && !password && !store_name) {

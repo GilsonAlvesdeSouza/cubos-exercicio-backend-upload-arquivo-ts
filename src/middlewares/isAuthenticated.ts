@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import { UnauthorizedError } from '../errors';
+import { UserRepository } from '../repositories/UserRepository';
 
 interface Payload {
 	sub: string;
 }
 
-export default function isAuthenticated(
+export default async function isAuthenticated(
 	req: Request,
 	res: Response,
 	next: NextFunction
@@ -19,11 +20,16 @@ export default function isAuthenticated(
 
 	const [_, token] = authToken.split(' ');
 
-	try {
-		const { sub } = verify(token, process.env.JWT_SECRET as string) as Payload;
-		req.user_id = sub;
-		return next();
-	} catch (error) {
+	const { sub } = verify(token, process.env.JWT_SECRET as string) as Payload;
+	const user_id = Number(sub);
+
+	const userRepository = new UserRepository();
+	const user = await userRepository.findById(user_id);
+
+	if (!user) {
 		throw new UnauthorizedError('Token inválido.');
 	}
+
+	req.user = user;
+	return next();
 }
